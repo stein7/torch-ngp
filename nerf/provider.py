@@ -202,6 +202,10 @@ class NeRFDataset:
                     continue
                 
                 pose = np.array(f['transform_matrix'], dtype=np.float32) # [4, 4]
+                
+                ## change from OpenGL/Blender camera axes (Y up, Z back) to COLMAP (Y down, Z forward)
+                pose[:3, 1:3] *= -1
+                
                 pose = nerf_matrix_to_ngp(pose, scale=self.scale, offset=self.offset)
 
                 image = cv2.imread(f_path, cv2.IMREAD_UNCHANGED) # [H, W, 3] o [H, W, 4]

@@ -63,7 +63,7 @@ if __name__ == '__main__':
     parser.add_argument('--rand_pose', type=int, default=-1, help="<0 uses no rand pose, =0 only uses rand pose, >0 sample one rand pose every $ known poses")
 
     opt = parser.parse_args()
-
+    
     if opt.O:
         opt.fp16 = True
         opt.cuda_ray = True
@@ -107,12 +107,27 @@ if __name__ == '__main__':
     #criterion = torch.nn.HuberLoss(reduction='none', beta=0.1) # only available after torch 1.10 ?
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    
     if opt.test:
         
         metrics = [PSNRMeter(), LPIPSMeter(device=device)]
         trainer = Trainer('ngp', opt, model, device=device, workspace=opt.workspace, criterion=criterion, fp16=opt.fp16, metrics=metrics, use_checkpoint=opt.ckpt)
 
+        trainer.save_mesh(resolution=256, threshold=10)
+        _xyz = pd.read_csv( '/home/sslunder0/project/NextProject/gaussian-splatting/output/chair/_DataVisualize/xyz_rot.csv').drop('Unnamed: 0', axis=1)
+        _dir = pd.read_csv( '/home/sslunder0/project/NextProject/gaussian-splatting/output/chair/_DataVisualize/dir.csv').drop('Unnamed: 0', axis=1)
+        xyz = torch.tensor( _xyz.values, dtype=torch.float32, device='cuda')
+        dir = torch.tensor( _dir.values, dtype=torch.float32, device='cuda')
+        # pd.DataFrame(data=model.density(xyz)['sigma'].cpu().detach().numpy()).to_csv('/home/sslunder0/project/refer/torch-ngp/sigmas.csv')
+        # xyz_col = xyz.clone()
+        # xyz_col_exch = xyz.clone()
+        # xyz_col[:, 1:] *= -1
+        # xyz_col_exch[:, [1, 2]] = xyz_col_exch[:, [2, 1]]
+        
+        sigma = model.density(xyz)['sigma']
+        geo_feat = model.density(xyz)['geo_feat']
+        color_output = model.color(xyz, dir, geo_feat=geo_feat)
+        model.density(torch.tensor([0.1, 0.1, 0.1]).cuda())
+        torch.nonzero(model.density(xyz)['sigma']).shape[0]
         if opt.gui:
             gui = NeRFGUI(opt, trainer)
             gui.render()
@@ -123,7 +138,7 @@ if __name__ == '__main__':
             if test_loader.has_gt:
                 trainer.evaluate(test_loader) # blender has gt, so evaluate it.
     
-            trainer.test(test_loader, write_video=True) # test and save video
+            trainer.test(test_loader, write_video=False) # test and save video
             
             trainer.save_mesh(resolution=256, threshold=10)
     
@@ -155,6 +170,6 @@ if __name__ == '__main__':
             if test_loader.has_gt:
                 trainer.evaluate(test_loader) # blender has gt, so evaluate it.
             
-            trainer.test(test_loader, write_video=True) # test and save video
+            trainer.test(test_loader, write_video=False) # test and save video
             
             trainer.save_mesh(resolution=256, threshold=10)

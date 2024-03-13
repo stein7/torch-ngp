@@ -170,7 +170,7 @@ if __name__ == '__main__':
             elif test_loader.has_gt:
                 trainer.evaluate(test_loader) # blender has gt, so evaluate it.
             
-            trainer.test(test_loader, write_video=True)
+            trainer.test(test_loader, write_video=False)
 
             #trainer.save_mesh(resolution=256, threshold=0.1)
     
