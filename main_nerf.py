@@ -62,6 +62,9 @@ if __name__ == '__main__':
     parser.add_argument('--clip_text', type=str, default='', help="text input for CLIP guidance")
     parser.add_argument('--rand_pose', type=int, default=-1, help="<0 uses no rand pose, =0 only uses rand pose, >0 sample one rand pose every $ known poses")
 
+    ## dh encoder
+    parser.add_argument('--encoder', type=str, default='hashgrid', help="encoder : hashgrid, frequency, sphere_harmonics, tiledgrid, ash")
+    
     opt = parser.parse_args()
 
     if opt.O:
@@ -91,7 +94,7 @@ if __name__ == '__main__':
     seed_everything(opt.seed)
 
     model = NeRFNetwork(
-        encoding="hashgrid",
+        encoding=opt.encoder,
         bound=opt.bound,
         cuda_ray=opt.cuda_ray,
         density_scale=1,
