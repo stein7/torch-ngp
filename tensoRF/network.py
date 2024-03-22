@@ -224,7 +224,7 @@ class NeRFNetwork(NeRFRenderer):
         # mask: [N,], bool, indicates where we actually needs to compute rgb.
 
         # normalize to [-1, 1] inside aabb_train
-        x = 2 * (x - self.aabb_train[:3]) / (self.aabb_train[3:] - self.aabb_train[:3]) - 1
+        #x = 2 * (x - self.aabb_train[:3]) / (self.aabb_train[3:] - self.aabb_train[:3]) - 1
 
         if mask is not None:
             rgbs = torch.zeros(mask.shape[0], 3, dtype=x.dtype, device=x.device) # [N, 3]

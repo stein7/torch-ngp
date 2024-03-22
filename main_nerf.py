@@ -123,11 +123,23 @@ if __name__ == '__main__':
         # xyz_col[:, 1:] *= -1
         # xyz_col_exch[:, [1, 2]] = xyz_col_exch[:, [2, 1]]
         
+        x = torch.tensor([0.1, 0.1, 0.1]).cuda()
+        d = torch.tensor([1, -1, 1]).cuda()
+        
         sigma = model.density(xyz)['sigma']
         geo_feat = model.density(xyz)['geo_feat']
         color_output = model.color(xyz, dir, geo_feat=geo_feat)
         model.density(torch.tensor([0.1, 0.1, 0.1]).cuda())
         torch.nonzero(model.density(xyz)['sigma']).shape[0]
+        
+        
+        N = 5  
+        bound = 2 
+        x = torch.rand(N, 3) * (2 * bound) - bound #[-b, b]
+        d = torch.rand(N, 3) * 2 - 1  #[-1, 1]
+        model.cuda()
+        model(x.cuda(), d.cuda())
+        
         if opt.gui:
             gui = NeRFGUI(opt, trainer)
             gui.render()

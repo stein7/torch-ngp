@@ -203,8 +203,8 @@ class NeRFDataset:
                 
                 pose = np.array(f['transform_matrix'], dtype=np.float32) # [4, 4]
                 
-                ## change from OpenGL/Blender camera axes (Y up, Z back) to COLMAP (Y down, Z forward)
-                pose[:3, 1:3] *= -1
+                # -> 3D GS에서 붙여실험한 부분 ## change from OpenGL/Blender camera axes (Y up, Z back) to COLMAP (Y down, Z forward)
+                # pose[:3, 1:3] *= -1
                 
                 pose = nerf_matrix_to_ngp(pose, scale=self.scale, offset=self.offset)
 
